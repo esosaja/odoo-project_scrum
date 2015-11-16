@@ -178,6 +178,9 @@ class project_user_stories(models.Model):
                     burndown = { 'type': 'projected', 'day': single_date, 
                                 'points': points_left, 'sprint_id': sprint.id }
                     self.env['project.burndown'].create(burndown)
+                    if day == 1:
+                        burndown['type'] = 'real'
+                        self.env['project.burndown'].create(burndown)
                     day += 1
                     points_left -= points_day                    
                 
@@ -248,6 +251,21 @@ class project_task(models.Model):
     def write(self, vals):
         if vals.get('stage_id') == self.env.ref('project.project_tt_deployment').id:
             vals['date_end'] = fields.datetime.now()
+        if "stage_id" in vals:
+            sprint = "sprint_id" in vals and self.env['project.scrum.sprint'].browse(vals["sprint_id"]) or self.sprint_id 
+            if sprint:
+                """select (select count(pt.id) from project_task pt inner join project_task_type ptt on pt.stage_id = 
+                ptt.id where ptt.closed = true and pt.sprint_id = 1) / (select count(id) from project_task where sprint_id = 1)::float as soma
+                from project_task group by soma"""
+                
+                total = len(sprint.task_ids)
+                closed_tasks = len(sprint.task_ids.filtered(lambda x: x.stage_id.closed))
+                points = sprint.total_points - (sprint.total_points * (closed_tasks / float(total)))
+                
+                burndown = { 'type': 'real', 'day': datetime.now(), 
+                                'points': points, 'sprint_id': sprint.id }                
+                self.env['project.burndown'].create(burndown)
+                
         return super(project_task, self).write(vals)
 
     @api.model
