@@ -7,6 +7,8 @@ import re
 import time
 from datetime import date, datetime, timedelta
 from dateutil.relativedelta import relativedelta
+from openerp.tools import DEFAULT_SERVER_DATE_FORMAT
+
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -52,9 +54,10 @@ class scrum_sprint(models.Model):
                 'categ_ids': [(6,_,tags)],
                 })
 
-    #def _task_count(self):    # method that calculate how many tasks exist
-        #for p in self:
-            #p.task_count = len(p.task_ids)
+    @api.multi
+    def _points_count(self):
+        for rec in self:
+            rec.total_points = sum(us.points for us in rec.us_ids)
     
     #def _task_test_count(self):    # method that calculate how many tasks in testing exist
         #task = self.env['project.task'].search([('categ_ids','ilike','test')])
@@ -74,7 +77,7 @@ class scrum_sprint(models.Model):
     scrum_master_id = fields.Many2one(comodel_name = 'res.users', string = 'Scrum Master', required=False,help="The person who is maintains the processes for the product")
     us_ids = fields.Many2many(comodel_name = 'project.scrum.us', string = 'User Stories')
     task_ids = fields.One2many(comodel_name = 'project.task', inverse_name = 'sprint_id')
-    #task_count = fields.Integer(compute = '_task_count')
+    total_points = fields.Integer('Planned Points', compute = '_points_count')
     #task_test_count = fields.Integer(compute = '_task_test_count')
     review = fields.Html(string = 'Sprint Review', default="""
         <h1 style="color:blue"><ul>What was the goal of this sprint?</ul></h1><br/><br/>
@@ -134,17 +137,51 @@ class project_user_stories(models.Model):
     actor_ids = fields.Many2many(comodel_name='project.scrum.actors', string = 'Actor')
     project_id = fields.Many2one(comodel_name = 'project.project', string = 'Project', ondelete='set null',
         select=True, track_visibility='onchange', change_default=True)
-    sprint_ids = fields.Many2many(comodel_name = 'project.scrum.sprint', string = 'Sprint')
-    #sprint_id = fields.Many2one(comodel_name = 'project.scrum.sprint', string = 'Sprint')
+    sprint_ids = fields.Many2many(comodel_name = 'project.scrum.sprint', string = 'Sprint')    
     task_ids = fields.One2many(comodel_name = 'project.task', inverse_name = 'us_id')
     task_test_ids = fields.One2many(comodel_name = 'project.scrum.test', inverse_name = 'user_story_id_test')
     task_count = fields.Integer(compute = '_task_count', store=True)
     test_ids = fields.One2many(comodel_name = 'project.scrum.test', inverse_name = 'user_story_id_test')
     test_count = fields.Integer(compute = '_test_count', store=True)
     sequence = fields.Integer('Sequence')
+    points = fields.Integer('Points')
     company_id = fields.Many2one(related='project_id.analytic_account_id.company_id')
-    #has_task = fields.Boolean()
-    #has_test = fields.Boolean()
+    
+    @api.multi
+    def write(self, vals):
+        if "points" in vals:
+            if len(self.sprint_ids) > 0:
+                sprint = self.sprint_ids[0]
+                us = self.env['project.burndown'].search([('sprint_id', '=', sprint.id),
+                                                             ('type', '=', 'projected')])
+                for item in us:
+                    item.unlink()
+                points = sprint.total_points + (vals["points"] - self.points)                
+                
+                def daterange(start_date, end_date):
+                    for n in range(int ((end_date - start_date).days)):
+                        yield start_date + timedelta(days=n, hours=12)
+                
+                start_date = datetime.strptime(sprint.date_start, DEFAULT_SERVER_DATE_FORMAT)
+                end_date = datetime.strptime(sprint.date_stop, DEFAULT_SERVER_DATE_FORMAT) + timedelta(1)                
+                
+                available_dates = []
+                for single_date in daterange(start_date, end_date):
+                    print single_date
+                    if single_date.weekday() != '0' and single_date.weekday() != '6':
+                        available_dates.append(single_date)
+                    
+                points_day = points / float(len(available_dates) - 1 or 1)                
+                day = 1
+                points_left = points
+                for single_date in available_dates:
+                    burndown = { 'type': 'projected', 'day': single_date, 
+                                'points': points_left, 'sprint_id': sprint.id }
+                    self.env['project.burndown'].create(burndown)
+                    day += 1
+                    points_left -= points_day                    
+                
+        return super(project_user_stories, self).write(vals)
     
     @api.one
     def _conv_html2text(self):  # method that return a short text from description of user story
