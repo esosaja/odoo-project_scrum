@@ -1,2 +1,3 @@
-import project_scrum
-import wizard
+from . import project_scrum
+from . import wizard
+from . import models
