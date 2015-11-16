@@ -265,25 +265,18 @@
                     <h1>
                         <field name="name" placeholder="User Story..." class="oe_inline"/>
                     </h1>
-<!--
-                    <if cond="task_ids=='True'">
-                        <field name="has_task" eval="True"/>
-                        <label for="has_task" string="Has Task"/>
-                    </if>
-                    <if cond="test_ids=='True'">
-                        <field name="has_test" eval="True"/>
-                        <label for="has_test" string="Has Test"/>
-                    </if>
--->
-                    <group col="4">
-                        <field name="sequence"/>
-                        <field name="actor_ids" widget="many2many_tags"/>
-                    </group>
-                    <group col="4">
-                        <field name="project_id"/>
-						<field name="sprint_ids" widget="many2many_tags"
-                               context="{'default_project_id': project_id,}"
-                               domain="[('project_id', '=' , project_id)]"/>
+                    <group>
+						<group>
+	                        <field name="project_id"/>
+							<field name="sprint_ids" widget="many2many_tags"
+	                               context="{'default_project_id': project_id,}"
+	                               domain="[('project_id', '=' , project_id)]"/>
+	                        <field name="points"/>
+	                    </group>
+	                    <group>
+	                        <field name="sequence"/>
+	                        <field name="actor_ids" widget="many2many_tags"/>
+	                    </group>
                     </group>
 
                     <notebook colspan="5">

@@ -142,6 +142,7 @@ class project_user_stories(models.Model):
     test_ids = fields.One2many(comodel_name = 'project.scrum.test', inverse_name = 'user_story_id_test')
     test_count = fields.Integer(compute = '_test_count', store=True)
     sequence = fields.Integer('Sequence')
+    points = fields.Integer('Points')
     company_id = fields.Many2one(related='project_id.analytic_account_id.company_id')
     #has_task = fields.Boolean()
     #has_test = fields.Boolean()
