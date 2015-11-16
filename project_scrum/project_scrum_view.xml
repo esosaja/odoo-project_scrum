@@ -275,7 +275,7 @@
 							<field name="sprint_ids" widget="many2many_tags"
 	                               context="{'default_project_id': project_id,}"
 	                               domain="[('project_id', '=' , project_id)]"/>
-	                        <field name="points"/>
+	                        <field name="total_points"/>
 	                    </group>
 	                    <group>
 	                        <field name="sequence"/>
@@ -817,6 +817,9 @@
                     <field name="use_scrum" invisible="1" readonly="1"/>
                     <field string="Sprint" name= "sprint_id" context="{'default_project_id':project_id}" attrs="{'invisible': [('use_scrum', '=', False)]}" domain="[('project_id', '=', project_id)]" />
                     <field string="User Story" name= "us_id" attrs="{'invisible': [('use_scrum', '=', False)]}" domain="[('project_id', '=', project_id)]" />
+                </field>
+                <field name="planned_hours" position="after">
+                	<field name="points" />
                 </field>
             </field>
         </record>
