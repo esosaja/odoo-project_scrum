@@ -78,6 +78,12 @@ msgid "Assigned to"
 msgstr "atribuído a"
 
 #. module: project_scrum
+#: code:addons/project_scrum/project_scrum.py:291
+#, python-format
+msgid "Attention!"
+msgstr ""
+
+#. module: project_scrum
 #: view:project.scrum.sprint:project_scrum.view_ps_sprint_form
 msgid "Backlog"
 msgstr "Backlog"
@@ -213,6 +219,11 @@ msgstr "Data Final"
 #: help:project.scrum.sprint,planned_hours:0
 msgid "Estimated time to do the task, usually set by the project manager when the task is in draft state."
 msgstr "Tempo estimado para fazer a tarefa, geralmente definida pelo gerente de projeto, quando a tarefa está em estado de rascunho."
+
+#. module: project_scrum
+#: selection:project.scrum.sprint,state:0
+msgid "Executing"
+msgstr "Em execução"
 
 #. module: project_scrum
 #: view:project.scrum.sprint:project_scrum.view_ps_sprint_search
@@ -377,15 +388,22 @@ msgid "Planned Hours"
 msgstr "Horas Planejadas"
 
 #. module: project_scrum
+#: field:project.burndown,points:0
+#: field:project.scrum.us,total_points:0
+#: field:project.task,points:0
+msgid "Points"
+msgstr "Pontos"
+
+#. module: project_scrum
 #: view:project.project:project_scrum.edit_ps_project
 #: field:project.scrum.sprint,product_owner_id:0
 msgid "Product Owner"
-msgstr "Dono do produto"
+msgstr "Product Owner"
 
 #. module: project_scrum
 #: view:project.scrum.sprint:project_scrum.view_ps_sprint_search
 msgid "Product owner"
-msgstr "Dono do produto"
+msgstr "Product Owner"
 
 #. module: project_scrum
 #: model:ir.model,name:project_scrum.model_project_project
@@ -416,9 +434,19 @@ msgid "Project Scrum Use Stories"
 msgstr "'User Stories' do Project Scrum"
 
 #. module: project_scrum
+#: selection:project.burndown,type:0
+msgid "Projected"
+msgstr "Projetado"
+
+#. module: project_scrum
 #: view:project.scrum.sprint:project_scrum.view_ps_sprint_gantt
 msgid "Projects"
 msgstr "Projetos"
+
+#. module: project_scrum
+#: selection:project.burndown,type:0
+msgid "Real"
+msgstr "Executado"
 
 #. module: project_scrum
 #: view:project.scrum.sprint:project_scrum.view_ps_sprint_form
@@ -722,6 +750,12 @@ msgstr "O que você pretende fazer até a próxima reunião?"
 #: selection:project.scrum.meeting,question_backlog:0
 msgid "Yes"
 msgstr "Sim"
+
+#. module: project_scrum
+#: code:addons/project_scrum/project_scrum.py:291
+#, python-format
+msgid "You can't change points after the sprint has started!"
+msgstr "Você não pode mudar os pontos da tarefa após o inicio do sprint!"
 
 #. module: project_scrum
 #: view:project.scrum.sprint:project_scrum.view_ps_sprint_form

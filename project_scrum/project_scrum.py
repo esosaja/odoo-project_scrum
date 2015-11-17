@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from openerp import models, fields, api, _
-#from bs4 import BeautifulSoup
+from openerp.exceptions import Warning
 import openerp.tools
 import re
 import time
@@ -67,8 +67,10 @@ class scrum_sprint(models.Model):
     name = fields.Char(string = 'Sprint Name', required=True)
     meeting_ids = fields.One2many(comodel_name = 'project.scrum.meeting', inverse_name = 'sprint_id', string ='Daily Scrum')
     user_id = fields.Many2one(comodel_name='res.users', string='Assigned to')
-    date_start = fields.Date(string = 'Starting Date', default=fields.Date.today())
-    date_stop = fields.Date(string = 'Ending Date')
+    date_start = fields.Date(string = 'Starting Date', default=fields.Date.today(),
+                            readonly=True, states={'draft': [('readonly', False)]})
+    date_stop = fields.Date(string = 'Ending Date', 
+                            readonly=True, states={'draft': [('readonly', False)]})
     date_duration = fields.Integer(compute = '_compute', string = 'Duration(in hours)')
     description = fields.Text(string = 'Description', required=False)
     project_id = fields.Many2one(comodel_name = 'project.project', string = 'Project', ondelete='set null', select=True, track_visibility='onchange',
@@ -92,7 +94,9 @@ class scrum_sprint(models.Model):
     progress = fields.Float(compute="_compute_progress", group_operator="avg", type='float', multi="progress", string='Progress (0-100)', help="Computed as: Time Spent / Total Time.")
     effective_hours = fields.Float(compute="_hours_get", multi="effective_hours", string='Effective hours', help="Computed using the sum of the task work done.")
     planned_hours = fields.Float(multi="planned_hours", string='Planned Hours', help='Estimated time to do the task, usually set by the project manager when the task is in draft state.')
-    state = fields.Selection([('draft','Draft'),('open','Open'),('pending','Pending'),('cancel','Cancelled'),('done','Done')], string='State', required=False)
+    state = fields.Selection([('draft','Draft'),('open','Executing'),
+                              ('cancel','Cancelled'),('done','Done')],
+                              string='State', required=False, default="draft")
     company_id = fields.Many2one(related='project_id.analytic_account_id.company_id')
 
     # Compute: effective_hours, total_hours, progress
@@ -283,6 +287,8 @@ class project_task(models.Model):
         if "points" in vals:
             if self.sprint_id and self.sprint_id.state == 'draft':
                 self._update_projected_burndown(vals)
+            elif self.sprint_id:
+                raise Warning(_("Attention!"), _("You can't change points after the sprint has started!"))
         if "stage_id" in vals:
             self._update_burndown(vals)
                 

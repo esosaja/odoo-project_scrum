@@ -6,7 +6,6 @@
             parent="base.menu_definitions" sequence="3"/>
 
 
-
 <!--task search-->
         <record id="view_ps_task_search" model="ir.ui.view">
             <field name="name">project.scrum.sprint.task</field>
@@ -26,6 +25,26 @@
                 </filter>
             </field>
         </record>
+
+		<record model="ir.ui.view" id="trust_tasks_github_view_task_kanban">
+			<field name="name">project.task.kanban</field>
+			<field name="model">project.task</field>
+			<field name="inherit_id" ref="project.view_task_kanban" />
+			<field name="arch" type="xml">
+				<field name="categ_ids" position="after">
+					<field name="points" />					
+				</field>
+				<xpath expr="//div[@class='oe_kanban_footer_left']"
+					position='after'>
+					<div class="oe_kanban_footer_left">
+                        <span title="Task points">
+                            <span class="oe_e">i</span>
+                            <t t-esc="record.points.raw_value"/>
+                        </span>
+                    </div>
+				</xpath>
+			</field>
+		</record>
         
  <!--access to task kanban view from sprint-->
         <record id="action_ps_sprint_backlog" model="ir.actions.act_window">
@@ -130,6 +149,25 @@
                         <field name="date_duration"/>
                     </group> 
                     <notebook colspan="5">
+                    	<page string="Tasks">
+                    		<group col="1">
+                                <field name="task_ids" string="Task" context="{
+                                            'default_project_id': project_id,
+                                            'default_sprint_id': id,
+                                            'default_us_ids': us_ids,
+                                            }">
+                                    <tree colors="blue:kanban_state in('normal'); red:kanban_state in('blocked'); grey:kanban_state in('done')" string="Task">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="priority"/>
+                                        <field name="name"/>
+                                        <field name="user_id"/>
+                                        <field name="date_deadline"/>
+                                        <field name="kanban_state"/>
+                                        <field name="stage_id"/>
+                                    </tree>
+                                </field>
+                            </group>
+                    	</page>
                         <!--User Stories-->
                         <page string="User Story">
                             <field colspan="2" col="1" name="us_ids" context="{
@@ -148,23 +186,7 @@
                             <!--page for review-->
                             <group col="1">
                                 <field name="review"/>
-                            </group>
-                            <group col="1">
-                                <field name="task_ids" string="Task" context="{
-                                            'default_project_id': project_id,
-                                            'default_sprint_id': id,
-                                            'default_us_ids': us_ids,
-                                            }">
-                                    <tree colors="blue:kanban_state in('normal'); red:kanban_state in('blocked'); grey:kanban_state in('done')" string="Task">
-                                        <field name="sequence" widget="handle"/>
-                                        <field name="priority"/>
-                                        <field name="name"/>
-                                        <field name="user_id"/>
-                                        <field name="date_deadline"/>
-                                        <field name="kanban_state"/>
-                                    </tree>
-                                </field>
-                            </group>
+                            </group>                            
                         </page>
                         <page string="Retrospective">
                             <!--page for retropective-->
