@@ -215,9 +215,13 @@ class project_task(models.Model):
     description = fields.Html('Description')
     points = fields.Integer('Points')
     
-    def _daterange(start_date, end_date):
+    def _daterange(self, start_date, end_date):
+        available_dates = []
         for n in range(int ((end_date - start_date).days)):
-            yield start_date + timedelta(days=n, hours=12)
+            single_date = start_date + timedelta(days=n, hours=12)
+            if single_date.weekday() != '0' and single_date.weekday() != '6':
+                available_dates.append(single_date)
+        return available_dates
     
     def _update_projected_burndown(self, vals):  
         sprint = self.sprint_id
@@ -228,47 +232,57 @@ class project_task(models.Model):
         points = sprint.total_points + (vals["points"] - self.points)      
                 
         start_date = datetime.strptime(sprint.date_start, DEFAULT_SERVER_DATE_FORMAT)
-        end_date = datetime.strptime(sprint.date_stop, DEFAULT_SERVER_DATE_FORMAT) + timedelta(1)                
+        end_date = datetime.strptime(sprint.date_stop, DEFAULT_SERVER_DATE_FORMAT) + timedelta(1)
         
-        available_dates = []
-        for single_date in self._daterange(start_date, end_date):            
-            if single_date.weekday() != '0' and single_date.weekday() != '6':
-                available_dates.append(single_date)
+        available_dates = self._daterange(start_date, end_date)
             
         points_day = points / float(len(available_dates) - 1 or 1)                
         day = 1
         points_left = points
         for single_date in available_dates:
-            burndown = { 'type': 'projected', 'day': single_date, 
+            burndown = { 'type': 'projected', 'day': single_date,
                         'points': points_left, 'sprint_id': sprint.id }
             self.env['project.burndown'].create(burndown)
-            if day == 1:
-                burndown['type'] = 'real'
-                self.env['project.burndown'].create(burndown)
+            burndown['type'] = 'real'
+            burndown['points'] = points
+            self.env['project.burndown'].create(burndown)
             day += 1
             points_left -= points_day                    
             
     def _update_burndown(self, vals):
         sprint = "sprint_id" in vals and self.env['project.scrum.sprint'].browse(vals["sprint_id"]) or self.sprint_id 
         if sprint:
-            """select (select count(pt.id) from project_task pt inner join project_task_type ptt on pt.stage_id = 
-            ptt.id where ptt.closed = true and pt.sprint_id = 1) / (select count(id) from project_task where sprint_id = 1)::float as soma
-            from project_task group by soma"""
+            stage = self.env['project.task.type'].browse(vals['stage_id'])
             
-            total = len(sprint.task_ids)
-            closed_tasks = len(sprint.task_ids.filtered(lambda x: x.stage_id.closed))
-            points = sprint.total_points - (sprint.total_points * (closed_tasks / float(total)))
-            
-            burndown = { 'type': 'real', 'day': datetime.now(), 
-                            'points': points, 'sprint_id': sprint.id }                
-            self.env['project.burndown'].create(burndown)
+            items_burndown = self.env['project.burndown'].search([('sprint_id', '=', sprint.id),
+                                                     ('type', '=', 'real'),
+                                                     ('day', '>=', datetime.now().strftime(DEFAULT_SERVER_DATE_FORMAT))])
+            for item in items_burndown:
+                item.unlink()
+
+            total = sprint.total_points
+            closed_tasks = sprint.task_ids.filtered(lambda x: x.stage_id.closed)
+            closed_points = sum(task.points for task in closed_tasks)
+            if stage.closed:
+                closed_points += self.points
+            elif self.stage_id.closed:
+                closed_points -= self.points
+
+            end_date = datetime.strptime(sprint.date_stop, DEFAULT_SERVER_DATE_FORMAT) + timedelta(1)
+            today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            available_dates = self._daterange(today, end_date)
+            for single_date in available_dates:
+                burndown = { 'type': 'real', 'day': single_date, 
+                            'points': total - closed_points, 'sprint_id': sprint.id }                
+                self.env['project.burndown'].create(burndown)
     
     @api.multi
     def write(self, vals):
         if vals.get('stage_id') == self.env.ref('project.project_tt_deployment').id:
             vals['date_end'] = fields.datetime.now()
         if "points" in vals:
-            self._update_projected_burndown(vals)
+            if self.sprint_id and self.sprint_id.state == 'draft':
+                self._update_projected_burndown(vals)
         if "stage_id" in vals:
             self._update_burndown(vals)
                 
