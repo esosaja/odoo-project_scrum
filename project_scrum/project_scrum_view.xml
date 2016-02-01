@@ -155,8 +155,8 @@
                                             'default_project_id': project_id,
                                             'default_sprint_id': id,
                                             'default_us_ids': us_ids,
-                                            }">
-                                    <tree colors="blue:kanban_state in('normal'); red:kanban_state in('blocked'); grey:kanban_state in('done')" string="Task">
+                                            }" widget="many2many">
+                                    <tree colors="blue:kanban_state in('normal')0; red:kanban_state in('blocked'); grey:kanban_state in('done')" string="Task">
                                         <field name="sequence" widget="handle"/>
                                         <field name="priority"/>
                                         <field name="name"/>
