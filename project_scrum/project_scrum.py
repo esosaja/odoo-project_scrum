@@ -282,7 +282,7 @@ class project_task(models.Model):
     
     @api.multi
     def write(self, vals):
-        if vals.get('stage_id') == self.env.ref('project.project_tt_deployment').id:
+        if self.env['project.task.type'].browse(vals.get('stage_id')).closed:
             vals['date_end'] = fields.datetime.now()
         if "points" in vals:
             if self.sprint_id and self.sprint_id.state == 'draft':
