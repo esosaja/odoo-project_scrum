@@ -526,3 +526,28 @@ class test_case(models.Model):
         'user_story_id_test': _read_group_us_id,
         }
     name = fields.Char()
+    
+class ProjectTaskType(models.Model):
+    _inherit = 'project.task.type'
+
+    task_sprint = fields.Boolean('Task Control Sprint')
+
+class ProjectTask(models.Model):
+    _inherit = 'project.task'
+    
+    @api.multi
+    def write(self, vals):
+        if "stage_id" in vals:
+            if self.sprint_id.state == 'draft':
+                next_stage = self.env['project.task.type'].browse(vals["stage_id"])
+                if next_stage.task_sprint:
+                    raise Warning(u"O sprint dessa tarefa está como provisório.",
+                                  u"Quando isso ocorre, não é permitido alterar o estágio da tarefa.")
+            
+            if self.stage_id.sequence == 1 \
+                and not self.sprint_id:
+                
+                raise Warning(u"Não é possível tirar uma tarefa do Sprint BACKLOG \
+                             sem que o SPRINT esteja definido.")
+                                    
+        return super(ProjectTask, self).write(vals)
