@@ -114,6 +114,8 @@
                 <form string="Scrum Sprint">
                     <!--Header States-->
                     <header>
+                    	<button name="start_sprint" type="object" string="Iniciar Sprint" 
+                    		class="oe_highlight" states="draft"/>
                         <field name="state" string="State" widget="statusbar" clickable="True"/>
                     </header>
                     <sheet string="Sprint">

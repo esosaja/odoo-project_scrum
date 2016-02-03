@@ -127,6 +127,10 @@ class scrum_sprint(models.Model):
                 self.date_stop = fields.Date.from_string(self.date_start) + timedelta(days=self.project_id.default_sprintduration)
         else:
             pass
+    
+    @api.multi
+    def start_sprint(self):
+        self.state = 'open'
 
 
 class project_user_stories(models.Model):
