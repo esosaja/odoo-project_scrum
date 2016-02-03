@@ -93,7 +93,7 @@ class scrum_sprint(models.Model):
     sequence = fields.Integer('Sequence', help="Gives the sequence order when displaying a list of tasks.")
     progress = fields.Float(compute="_compute_progress", group_operator="avg", type='float', multi="progress", string='Progress (0-100)', help="Computed as: Time Spent / Total Time.")
     effective_hours = fields.Float(compute="_hours_get", multi="effective_hours", string='Effective hours', help="Computed using the sum of the task work done.")
-    planned_hours = fields.Float(multi="planned_hours", string='Planned Hours', help='Estimated time to do the task, usually set by the project manager when the task is in draft state.')
+    planned_hours = fields.Float(compute="_hours_get", multi="planned_hours", string='Planned Hours', help='Estimated time to do the task, usually set by the project manager when the task is in draft state.')
     state = fields.Selection([('draft','Draft'),('open','Executing'),
                               ('cancel','Cancelled'),('done','Done')],
                               string='State', required=False, default="draft")
@@ -109,7 +109,7 @@ class scrum_sprint(models.Model):
             effective_hours += task.effective_hours or 0.0
             planned_hours += task.planned_hours or 0.0
         self.effective_hours = effective_hours
-        # self.planned_hours = planned_hours
+        self.planned_hours = planned_hours
         return True
    
         
