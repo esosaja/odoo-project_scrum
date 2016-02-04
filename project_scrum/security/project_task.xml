@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<openerp>
+    <data noupdate="1">
+    
+    <!-- REGRA QUE NÃO PERMITE QUE UMA TAREFA AVANCE PARA O ESTÁGIO 'TO-DO' SEM TER UM SPRINT RELACIONADO -->
+        <record id="filter_without_sprint" model="ir.filters">
+            <field name="name">without Sprint</field>
+            <field name="model_id">project.task</field>
+            <field name="domain">[('sprint_id','=',False)]</field>
+            <field name="user_id" eval="False"/>
+        </record>
+
+        <record id="action_task_lock_without_sprint" model="ir.actions.server">
+            <field name="name">lock tasks without sprint</field>
+            <field name="model_id" ref="project.model_project_task"/>
+            <field name="sequence">1</field>
+            <field name="state">code</field>
+            <field name="code">raise Warning(u"Tarefa sem Sprint não pode avançar de estágio.")</field>
+        </record>
+        
+        <record id="rule_task_without_sprint" model="base.action.rule">
+            <field name="name">tasks lock without sprint</field>
+            <field name="model_id" ref="project.model_project_task"/>
+            <field name="kind">on_write</field>
+            <field name="filter_id" ref="filter_without_sprint"/>
+            <field name="server_action_ids" eval="[(6,0,[ref('action_task_lock_without_sprint')])]"/>
+        </record>
+        
+   <!-- REGRA QUE NÃO PERMITE QUE UMA TAREFA AVANCE PARA O ESTÁGIO 'TO-DO' SE O SPRINT ESTIVER EM PROVISÓRIO -->
+        <record id="filter_sprint_draft" model="ir.filters">
+            <field name="name">Sprint draft</field>
+            <field name="model_id">project.task</field>
+            <field name="domain">[
+								('project_id.use_scrum','=',True),
+								('sprint_id.state','=','draft'),
+								('stage_id.sequence','>','1'),
+								]</field>
+            <field name="user_id" eval="False"/>
+        </record>
+
+        <record id="action_task_lock_sprint_draft" model="ir.actions.server">
+            <field name="name">tasks lock on sprint draft</field>
+            <field name="model_id" ref="project.model_project_task"/>
+            <field name="sequence">1</field>
+            <field name="state">code</field>
+            <field name="code">raise Warning(u"O sprint dessa tarefa está como provisório.",
+                     u"Quando isso ocorre, não é permitido alterar o estágio da tarefa.")</field>
+        </record>
+        
+        <record id="rule_task_sprint_draft" model="base.action.rule">
+            <field name="name">tasks lock with sprint daft</field>
+            <field name="model_id" ref="project.model_project_task"/>
+            <field name="kind">on_write</field>
+            <field name="filter_id" ref="filter_sprint_draft"/>
+            <field name="server_action_ids" eval="[(6,0,[ref('action_task_lock_sprint_draft')])]"/>
+        </record>
+
+   <!-- REMOVE REGRAS DO BACKLOG AO INICIAR -->
+        <record id="filter_backlog_stage" model="ir.filters">
+            <field name="name">Backlog Stage</field>
+            <field name="model_id">project.scrum.sprint</field>
+            <field name="domain">[('state','=','open'),]</field>
+            <field name="user_id" eval="False"/>
+        </record>
+
+        <record id="action_task_change_stage" model="ir.actions.server">
+            <field name="name">tasks change stage</field>
+            <field name="model_id" ref="model_project_scrum_sprint"/>
+            <field name="sequence">1</field>
+            <field name="state">code</field>
+            <field name="code">
+stage = env['project.task.type'].search([('sequence','=','2')], limit=1)
+if stage and object.task_ids:
+    for t in object.task_ids:
+       t.write({'stage_id':stage.id})</field>
+        </record>
+        
+        <record id="rule_task_change_stage" model="base.action.rule">
+            <field name="name">tasks change stage when start sprint</field>
+            <field name="model_id" ref="model_project_scrum_sprint"/>
+            <field name="kind">on_write</field>
+            <field name="filter_id" ref="filter_backlog_stage"/>
+            <field name="server_action_ids" eval="[(6,0,[ref('action_task_change_stage')])]"/>
+        </record>
+        
+    </data>
+</openerp>

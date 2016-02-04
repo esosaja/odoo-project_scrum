@@ -131,8 +131,7 @@ class scrum_sprint(models.Model):
     @api.multi
     def start_sprint(self):
         self.state = 'open'
-
-
+            
 class project_user_stories(models.Model):
     _name = 'project.scrum.us'
     _description = 'Project Scrum Use Stories'
@@ -295,7 +294,7 @@ class project_task(models.Model):
                 raise Warning(_("Attention!"), _("You can't change points after the sprint has started!"))
         if "stage_id" in vals:
             self._update_burndown(vals)
-                
+                                                    
         return super(project_task, self).write(vals)
 
     @api.model
@@ -531,23 +530,3 @@ class ProjectTaskType(models.Model):
     _inherit = 'project.task.type'
 
     task_sprint = fields.Boolean('Task Control Sprint')
-
-class ProjectTask(models.Model):
-    _inherit = 'project.task'
-    
-    @api.multi
-    def write(self, vals):
-        if "stage_id" in vals:
-            if self.sprint_id.state == 'draft':
-                next_stage = self.env['project.task.type'].browse(vals["stage_id"])
-                if next_stage.task_sprint:
-                    raise Warning(u"O sprint dessa tarefa está como provisório.",
-                                  u"Quando isso ocorre, não é permitido alterar o estágio da tarefa.")
-            
-            if self.stage_id.sequence == 1 \
-                and not self.sprint_id:
-                
-                raise Warning(u"Não é possível tirar uma tarefa do Sprint BACKLOG \
-                             sem que o SPRINT esteja definido.")
-                                    
-        return super(ProjectTask, self).write(vals)

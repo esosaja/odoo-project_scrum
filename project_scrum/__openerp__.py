@@ -23,6 +23,7 @@ More information:
              'wizard/project_scrum_test_task_view.xml',
              'security/ir.model.access.csv',
              'security/project_security.xml',
+             'security/project_task.xml',
              ],
     'demo': ['project_scrum_demo.xml'],
     'installable': True,
