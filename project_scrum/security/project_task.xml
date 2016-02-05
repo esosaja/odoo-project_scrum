@@ -72,7 +72,8 @@
 stage = env['project.task.type'].search([('sequence','=','2')], limit=1)
 if stage and object.task_ids:
     for t in object.task_ids:
-       t.write({'stage_id':stage.id})</field>
+        if t.stage_id.sequence == 1:
+            t.write({'stage_id':stage.id})</field>
         </record>
         
         <record id="rule_task_change_stage" model="base.action.rule">
