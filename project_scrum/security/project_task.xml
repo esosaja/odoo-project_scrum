@@ -11,7 +11,7 @@
         </record>
 
         <record id="action_task_lock_without_sprint" model="ir.actions.server">
-            <field name="name">lock tasks without sprint</field>
+            <field name="name">tasks lock without sprint</field>
             <field name="model_id" ref="project.model_project_task"/>
             <field name="sequence">1</field>
             <field name="state">code</field>
@@ -83,6 +83,35 @@ if stage and object.task_ids:
             <field name="filter_id" ref="filter_backlog_stage"/>
             <field name="server_action_ids" eval="[(6,0,[ref('action_task_change_stage')])]"/>
         </record>
+
+   <!-- REGRA QUE BLOQUEIA ALTERAÇÃO EM TAREFAS AONDE NÃO SEJA O SCRUM MASTER O DONO -->
+        <record id="filter_change_task" model="ir.filters">
+            <field name="name">just owner or scrum master changes</field>
+            <field name="model_id">project.task</field>
+            <field name="domain">[
+								('user_id','!=',False),
+								'!',('user_id.id','=',user.id),
+								'!',('project_id.user_id.id','=',user.id)
+								]</field>
+            <field name="user_id" eval="False"/>
+        </record>
+
+        <record id="action_task_cant_change" model="ir.actions.server">
+            <field name="name">Can't change task</field>
+            <field name="model_id" ref="project.model_project_task"/>
+            <field name="sequence">1</field>
+            <field name="state">code</field>
+            <field name="code">raise Warning(u"Você não pode alterar a tarefa, provavelmente 
+            ela não foi atribuída pra você.")</field>
+        </record>
         
+        <record id="rule_task_lock_changes" model="base.action.rule">
+            <field name="name">just owner or scrum master changes</field>
+            <field name="model_id" ref="project.model_project_task"/>
+            <field name="kind">on_write</field>
+            <field name="filter_id" ref="filter_change_task"/>
+            <field name="server_action_ids" eval="[(6,0,[ref('action_task_cant_change')])]"/>
+        </record>
+
     </data>
 </openerp>
