@@ -226,7 +226,7 @@ class project_task(models.Model):
         available_dates = []
         for n in range(int ((end_date - start_date).days)):
             single_date = start_date + timedelta(days=n, hours=12)
-            if single_date.weekday() != '0' and single_date.weekday() != '6':
+            if single_date.weekday() != 5 and single_date.weekday() != 6:
                 available_dates.append(single_date)
         return available_dates
     
@@ -254,7 +254,9 @@ class project_task(models.Model):
             burndown['points'] = points
             self.env['project.burndown'].create(burndown)
             day += 1
-            points_left -= points_day                    
+            points_left -= points_day
+            if points_left < 0.1:
+                points_left = 0
             
     def _update_burndown(self, vals):
         sprint = "sprint_id" in vals and self.env['project.scrum.sprint'].browse(vals["sprint_id"]) or self.sprint_id 
