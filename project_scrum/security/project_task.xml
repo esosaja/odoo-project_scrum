@@ -101,8 +101,7 @@ if stage and object.task_ids:
             <field name="model_id" ref="project.model_project_task"/>
             <field name="sequence">1</field>
             <field name="state">code</field>
-            <field name="code">raise Warning(u"Você não pode alterar a tarefa, provavelmente 
-            ela não foi atribuída pra você.")</field>
+            <field name="code">raise Warning(u"Você não pode alterar a tarefa, provavelmente ela não foi atribuída pra você.")</field>
         </record>
         
         <record id="rule_task_lock_changes" model="base.action.rule">
