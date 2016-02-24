@@ -255,9 +255,10 @@ class project_task(models.Model):
                 if points_left < 0.1:
                     points_left = 0
 
+                today_str = datetime.now().strftime(DEFAULT_SERVER_DATETIME_FORMAT)
                 tasks_today = closed_tasks.filtered(
-                    lambda x: datetime.strptime(x.date_end, DEFAULT_SERVER_DATETIME_FORMAT) >= single_date+timedelta(hours=-12) and \
-                    datetime.strptime(x.date_end, DEFAULT_SERVER_DATETIME_FORMAT) <  single_date+timedelta(hours=12))
+                    lambda x: datetime.strptime((x.date_end or today_str), DEFAULT_SERVER_DATETIME_FORMAT) >= single_date+timedelta(hours=-12) and \
+                    datetime.strptime((x.date_end or today_str), DEFAULT_SERVER_DATETIME_FORMAT) <  single_date+timedelta(hours=12))
                 points_today = sum(task.points for task in tasks_today)
                 points_real -= points_today
                 burndown = { 'type': 'real', 'day': single_date, 
