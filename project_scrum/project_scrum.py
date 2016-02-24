@@ -237,6 +237,12 @@ class project_task(models.Model):
 
             available_dates = self._daterange(start_date, end_date)
             closed_tasks = sprint.task_ids.filtered(lambda x: x.stage_id.closed)
+            if "stage_id" in vals and self.id:
+                stage = self.env['project.task.type'].browse(vals['stage_id'])
+                if stage.closed:
+                    closed_tasks |= sprint.task_ids.filtered(lambda x: x.id == self.id)
+                elif self.stage_id.closed:
+                    closed_tasks = closed_tasks.filtered(lambda x: x.id != self.id)
 
             points_day = points / float(len(available_dates) - 1 or 1)
             points_left = points
@@ -250,7 +256,7 @@ class project_task(models.Model):
                     points_left = 0
 
                 tasks_today = closed_tasks.filtered(
-                    lambda x: datetime.strptime(x.date_end, DEFAULT_SERVER_DATETIME_FORMAT) > single_date+timedelta(hours=-12) and \
+                    lambda x: datetime.strptime(x.date_end, DEFAULT_SERVER_DATETIME_FORMAT) >= single_date+timedelta(hours=-12) and \
                     datetime.strptime(x.date_end, DEFAULT_SERVER_DATETIME_FORMAT) <  single_date+timedelta(hours=12))
                 points_today = sum(task.points for task in tasks_today)
                 points_real -= points_today
