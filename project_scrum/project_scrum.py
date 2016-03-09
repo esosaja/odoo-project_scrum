@@ -12,6 +12,7 @@ from openerp.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FO
 import logging
 _logger = logging.getLogger(__name__)
 
+
 class scrum_sprint(models.Model):
     _name = 'project.scrum.sprint'
     _description = 'Project Scrum Sprint'
@@ -75,6 +76,7 @@ class scrum_sprint(models.Model):
     us_ids = fields.Many2many(comodel_name = 'project.scrum.us', string = 'User Stories')
     task_ids = fields.One2many(comodel_name = 'project.task', inverse_name = 'sprint_id')
     total_points = fields.Integer('Planned Points', compute = '_points_count')
+    points_done = fields.Integer(u'Pontos Feitos')
     review = fields.Html(string = 'Sprint Review', default="""
         <h1 style="color:blue"><ul>What was the goal of this sprint?</ul></h1><br/><br/>
         <h1 style="color:blue"><ul>Has the goal been reached?</ul></h1><br/><br/>
@@ -125,7 +127,30 @@ class scrum_sprint(models.Model):
     @api.multi
     def start_sprint(self):
         self.state = 'open'
-            
+
+    @api.multi
+    def finish_sprint(self):
+        for sprint in self:
+            stage_cancelled = sprint.project_id.type_ids.filtered(lambda x: x.cancelled_state)
+            if len(stage_cancelled) == 0:
+                raise Warning(u'Atenção!', u'Configure um estágio para as tarefas canceladas')
+            stage_done = sprint.project_id.type_ids.filtered(lambda x: x.closed)
+            if len(stage_done) == 0:
+                raise Warning(u'Atenção!', u'Configure um estágio para as tarefas concluídas')
+            stages = sprint.project_id.type_ids.sorted(lambda x: x.sequence)
+            points_done = 0
+            for task in sprint.task_ids:
+                if task.stage_id.closed:
+                    points_done += task.points
+                else:
+                    if not task.stage_id.cancelled_state and \
+                        self.env.user.company_id.cancel_open_tasks_scrum:
+
+                        task.sudo(user=sprint.project_id.user_id).stage_id = stage_cancelled[0].id
+                        task.copy(default={ 'stage_id': stages[0].id, 'name': task.name })
+            sprint.points_done = points_done
+            sprint.state = 'done'
+
 class project_user_stories(models.Model):
     _name = 'project.scrum.us'
     _description = 'Project Scrum Use Stories'
@@ -265,6 +290,15 @@ class project_task(models.Model):
                             'points': points_real, 'sprint_id': sprint.id }
                 self.env['project.burndown'].create(burndown)
     
+    @api.one
+    def copy(self, default=None):
+        if default is None:
+            default = {}
+        default.update({
+            'sprint_id': None,
+        })
+        return super(project_task, self).copy(default)
+
     @api.model
     def create(self, values):
         result = super(project_task, self).create(values)
@@ -514,4 +548,4 @@ class test_case(models.Model):
 class ProjectTaskType(models.Model):
     _inherit = 'project.task.type'
 
-    task_sprint = fields.Boolean('Task Control Sprint')
+    cancelled_state = fields.Boolean(u'Estado Cancelado?')

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ###############################################################################
 #                                                                             #
-# Copyright (C) 2015 TrustCode - www.trustcode.com.br                         #
+# Copyright (C) 2016 TrustCode - www.trustcode.com.br                         #
 #              Danimar Ribeiro <danimaribeiro@gmail.com>                      #
 #                                                                             #
 # This program is free software: you can redistribute it and/or modify        #
@@ -20,5 +20,32 @@
 ###############################################################################
 
 
-from . import burndown
-from . import project_config
+from openerp import api, fields, models
+
+
+class ResCompany(models.Model):
+    _inherit = 'res.company'
+
+    cancel_open_tasks_scrum = fields.Boolean(
+        u'Cancelar tarefas abertas ao finalizar sprint')
+
+
+class ProjectConfigSettings(models.TransientModel):
+    _inherit = 'project.config.settings'
+
+    cancel_open_tasks_scrum = fields.Boolean(
+        u'Cancelar tarefas abertas ao finalizar sprint', help="""
+        Ao cancelar as tarefas abertas ele faz um cópia da mesma e adiciona
+        a cópia ao primeiro estágio e muda a tarefa original para cancelada
+        """)
+
+    def get_default_cancel_open_tasks_scrum(
+            self, cr, uid, fields, context=None):
+        user = self.pool['res.users'].browse(cr, uid, uid, context)
+        return {'cancel_open_tasks_scrum':
+                user.company_id.cancel_open_tasks_scrum}
+
+    @api.multi
+    def set_cancel_open_tasks_scrum(self):
+        self.env.user.company_id.cancel_open_tasks_scrum = \
+            self.cancel_open_tasks_scrum
