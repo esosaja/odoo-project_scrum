@@ -7,9 +7,9 @@
 			<field name="model">project.config.settings</field>
 			<field name="inherit_id" ref="project.view_config_settings" />
 			<field name="arch" type="xml">
-				<form string="Configure Project" position="inside">
+				<group name="project_management" position="after">
 					<separator string="Scrum" />
-					<group>
+					<group name="scrum" string="Scrum">
 						<label for="id" string="Tarefas sprint" />
 						<div>
 							<div>
@@ -18,7 +18,7 @@
 							</div>
 						</div>
 					</group>
-				</form>
+				</group>
 			</field>
 		</record>
 

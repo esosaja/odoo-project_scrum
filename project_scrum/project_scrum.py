@@ -372,7 +372,7 @@ class project_task(models.Model):
         if read_group_order == 'stage_id desc':
             order = '%s desc' % order
         search_domain = []
-        project_id = self._resolve_project_id_from_context(cr, uid, context=context)
+        project_id = context.get('default_project_id', False)
         if project_id:
             search_domain += ['|', ('project_ids', '=', project_id)]
         search_domain += [('id', 'in', ids)]

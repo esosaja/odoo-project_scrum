@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-##############################################################################
-#
-#
-#
-##############################################################################
 
 {
     'name': 'Project Scrum',
@@ -17,7 +12,7 @@ More information:
     """,
     'author': 'Vertel AB',
     'website': 'http://www.vertel.se',
-    'depends': ['project', 'mail', 'sale_service'],
+    'depends': ['project', 'mail'],
     'data': ['views/burndown_view.xml',
              'project_scrum_view.xml',
              'wizard/project_scrum_test_task_view.xml',

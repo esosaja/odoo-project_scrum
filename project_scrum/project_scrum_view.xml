@@ -3,7 +3,7 @@
     <data>
         <menuitem id="menu_scrum_in_config"
             name="Scrum"
-            parent="base.menu_definitions" sequence="3"/>
+            parent="base.menu_main_pm" sequence="55"/>
 
 
 <!--task search-->
@@ -12,10 +12,6 @@
             <field name="model">project.task</field>
             <field name="inherit_id" ref="project.view_task_search_form"/>
             <field name="arch" type="xml">
-                <filter string="New Mail" position="after">
-                    <separator/>
-                    <filter string="Test" name="filte_by_tag" domain="[('categ_ids','ilike','test')]"/>
-                </filter>
                 <field name="project_id" position="after">
                     <field name="sprint_id"/>
                     <field name="us_id"/>
@@ -43,12 +39,12 @@
 			<field name="model">project.task</field>
 			<field name="inherit_id" ref="project.view_task_kanban" />
 			<field name="arch" type="xml">
-				<field name="categ_ids" position="after">
+				<field name="tag_ids" position="after">
 					<field name="points" />					
 				</field>
-				<xpath expr="//div[@class='oe_kanban_footer_left']"
+				<xpath expr="//div[@class='oe_kanban_bottom_left']"
 					position='after'>
-					<div class="oe_kanban_footer_left">
+					<div class="oe_kanban_bottom_left">
                         <span title="Task points">
                             <span class="oe_e">i</span>
                             <t t-esc="record.points.raw_value"/>
@@ -659,7 +655,7 @@
             <field name="model">project.project</field>
             <field name="inherit_id" ref="project.view_project_project_filter"/>
             <field name="arch" type="xml">
-                <filter name="Template" position="after">
+                <filter name="my_projects" position="after">
                     <filter string="Using Scrum" name="use_scrum" domain="[('use_scrum','=',True)]"/>   
                 </filter>             
             </field>
@@ -821,7 +817,7 @@
                     <field name="partner_id" nolabel="1"/>
                 </field>
 
-                <page name="project_stages" position="after">
+                <notebook position="inside">
                     <page name="tasks" string="Tasks">
                         <field name="task_ids" string="Task" context="{
                                         'default_project_id': active_id,
@@ -843,7 +839,7 @@
 					<field name="default_sprintduration"/>
 					</group>
                 </page>
-                </page>
+                </notebook>
             </field>
         </record>
 
@@ -857,8 +853,6 @@
                     <field name="use_scrum" invisible="1" readonly="1"/>
                     <field string="Sprint" name= "sprint_id" context="{'default_project_id':project_id}" attrs="{'invisible': [('use_scrum', '=', False)]}" domain="[('project_id', '=', project_id)]" />
                     <field string="User Story" name= "us_id" attrs="{'invisible': [('use_scrum', '=', False)]}" domain="[('project_id', '=', project_id)]" />
-                </field>
-                <field name="planned_hours" position="after">
                 	<field name="points" />
                 </field>
             </field>
@@ -931,12 +925,12 @@
             </field>
         </record>
 
-<!--email_template for daily meeting-->
+<!--email_template for daily meeting
         <record id="email_template_id" model="email.template">
             <field name="name">Email Template for Meeting</field>
             <field name="email_from">${object.user_id_meeting or ''}</field>
             <field name="subject"> ${object.date_meeting or ''}</field>
-            <field name="model_id" ref="project_scrum.model_project_scrum_meeting"/>
+            <field name="model_id" ref="model_project_scrum_meeting"/>
             <field name="auto_delete" eval="True"/>
             <field name="email_to">${object.user_id_meeting or ''}</field>
             <field name="body_html">
@@ -954,6 +948,6 @@
                 ]]>
             </field>
         </record> 
-
+-->
     </data>
 </openerp>
