@@ -1,5 +1,5 @@
 <p align="center">
-<a name="top" href="http://trustcode.com.br/scrum"><img src="https://github.com/Trust-Code/odoo-project_scrum/raw/master/project_scrum/static/description/icon.png"></a>
+<a name="top" href="http://trustcode.com.br/scrum"><img src="https://github.com/Trust-Code/odoo-project_scrum/raw/10.0/project_scrum/static/description/icon.png"></a>
 </p>
 
 <p align="center">
@@ -66,7 +66,9 @@ TODO
 
 ## Credits
 
-Acknowledgment; "If I have seen further, it is by standing on the shouldersof giants". This repository is built on top of the great work of those people.
+**"f I have seen further, it is by standing on the shoulders of giants"**
+
+This repository is built on top of the great work made by those people.
 
 TODO
 
