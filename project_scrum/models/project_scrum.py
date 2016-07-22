@@ -43,16 +43,16 @@ class scrum_sprint(models.Model):
         return diff.days + 1
             
     def test_task(self, cr, uid, sprint, pool):
-        tags = pool.get('project.category').search(cr,uid,[('name', '=', 'test')])  # search tags with name "test"
-        if len(tags)==0:    # if not exist, then creat a "test" tag into category
-            tags.append(pool.get('project.category').create(cr,uid,{'name':'test'}))
+        tags = pool.get('project.category').search(cr, uid, [('name', '=', 'test')])  # search tags with name "test"
+        if len(tags) == 0:  # if not exist, then creat a "test" tag into category
+            tags.append(pool.get('project.category').create(cr, uid, {'name':'test'}))
         for tc in sprint.project_id.test_case_ids:  # loop through each test cases to creat task
-            pool.get('project.task').create(cr, uid,{
+            pool.get('project.task').create(cr, uid, {
                 'name': '[TC] %s' % tc.name,
                 'description': tc.description_test,
                 'project_id': tc.project_id.id,
                 'sprint_id': sprint.id,
-                'categ_ids': [(6,_,tags)],
+                'categ_ids': [(6, _, tags)],
                 })
 
     @api.multi
@@ -60,28 +60,28 @@ class scrum_sprint(models.Model):
         for rec in self:
             rec.total_points = sum(task.points for task in rec.task_ids)
     
-    name = fields.Char(string = 'Sprint Name', required=True)
-    meeting_ids = fields.One2many(comodel_name = 'project.scrum.meeting', inverse_name = 'sprint_id', string ='Daily Scrum')
+    name = fields.Char(string='Sprint Name', required=True)
+    meeting_ids = fields.One2many(comodel_name='project.scrum.meeting', inverse_name='sprint_id', string='Daily Scrum')
     user_id = fields.Many2one(comodel_name='res.users', string='Assigned to')
-    date_start = fields.Date(string = 'Starting Date', default=fields.Date.today(),
+    date_start = fields.Date(string='Starting Date', default=fields.Date.today(),
                             readonly=True, states={'draft': [('readonly', False)]})
-    date_stop = fields.Date(string = 'Ending Date', 
+    date_stop = fields.Date(string='Ending Date',
                             readonly=True, states={'draft': [('readonly', False)]})
-    date_duration = fields.Integer(compute = '_compute', string = 'Duration(in hours)')
-    description = fields.Text(string = 'Description', required=False)
-    project_id = fields.Many2one(comodel_name = 'project.project', string = 'Project', ondelete='set null', select=True, track_visibility='onchange',
+    date_duration = fields.Integer(compute='_compute', string='Duration(in hours)')
+    description = fields.Text(string='Description', required=False)
+    project_id = fields.Many2one(comodel_name='project.project', string='Project', ondelete='set null', select=True, track_visibility='onchange',
         change_default=True, required=True, help="If you have [?] in the project name, it means there are no analytic account linked to this project.")
-    product_owner_id = fields.Many2one(comodel_name = 'res.users', string = 'Product Owner', required=False,help="The person who is responsible for the product")
-    scrum_master_id = fields.Many2one(comodel_name = 'res.users', string = 'Scrum Master', required=False,help="The person who is maintains the processes for the product")
-    us_ids = fields.Many2many(comodel_name = 'project.scrum.us', string = 'User Stories')
-    task_ids = fields.One2many(comodel_name = 'project.task', inverse_name = 'sprint_id')
-    total_points = fields.Integer('Planned Points', compute = '_points_count')
+    product_owner_id = fields.Many2one(comodel_name='res.users', string='Product Owner', required=False, help="The person who is responsible for the product")
+    scrum_master_id = fields.Many2one(comodel_name='res.users', string='Scrum Master', required=False, help="The person who is maintains the processes for the product")
+    us_ids = fields.Many2many(comodel_name='project.scrum.us', string='User Stories')
+    task_ids = fields.One2many(comodel_name='project.task', inverse_name='sprint_id')
+    total_points = fields.Integer('Planned Points', compute='_points_count')
     points_done = fields.Integer(u'Pontos Feitos')
-    review = fields.Html(string = 'Sprint Review', default="""
+    review = fields.Html(string='Sprint Review', default="""
         <h1 style="color:blue"><ul>What was the goal of this sprint?</ul></h1><br/><br/>
         <h1 style="color:blue"><ul>Has the goal been reached?</ul></h1><br/><br/>
     """)
-    retrospective = fields.Html(string = 'Sprint Retrospective', default="""
+    retrospective = fields.Html(string='Sprint Retrospective', default="""
         <h1 style="color:blue"><ul>What will you start doing in next sprint?</ul></h1><br/><br/>
         <h1 style="color:blue"><ul>What will you stop doing in next sprint?</ul></h1><br/><br/>
         <h1 style="color:blue"><ul>What will you continue doing in next sprint?</ul></h1><br/><br/>
@@ -90,8 +90,8 @@ class scrum_sprint(models.Model):
     progress = fields.Float(compute="_compute_progress", group_operator="avg", type='float', multi="progress", string='Progress (0-100)', help="Computed as: Time Spent / Total Time.")
     effective_hours = fields.Float(compute="_hours_get", multi="effective_hours", string='Effective hours', help="Computed using the sum of the task work done.")
     planned_hours = fields.Float(compute="_hours_get", multi="planned_hours", string='Planned Hours', help='Estimated time to do the task, usually set by the project manager when the task is in draft state.')
-    state = fields.Selection([('draft','Draft'),('open','Executing'),
-                              ('cancel','Cancelled'),('done','Done')],
+    state = fields.Selection([('draft', 'Draft'), ('open', 'Executing'),
+                              ('cancel', 'Cancelled'), ('done', 'Done')],
                               string='State', required=False, default="draft")
     company_id = fields.Many2one(related='project_id.analytic_account_id.company_id')
 
@@ -101,9 +101,9 @@ class scrum_sprint(models.Model):
         res = {}
         effective_hours = 0.0
         planned_hours = 0.0
-        for task in self.task_ids:
-            effective_hours += task.effective_hours or 0.0
-            planned_hours += task.planned_hours or 0.0
+        #for task in self.task_ids:  #TODO Estes campos mudaram de lugar na 10, foram parar no hr_timesheet
+        #    effective_hours += task.effective_hours or 0.0
+        #    planned_hours += task.planned_hours or 0.0
         self.effective_hours = effective_hours
         self.planned_hours = planned_hours
         return True
@@ -133,10 +133,10 @@ class scrum_sprint(models.Model):
         for sprint in self:
             stage_cancelled = sprint.project_id.type_ids.filtered(lambda x: x.cancelled_state)
             if len(stage_cancelled) == 0:
-                raise Warning(u'Atenção!', u'Configure um estágio para as tarefas canceladas')
+                raise Warning(u'Configure um estágio para as tarefas canceladas')
             stage_done = sprint.project_id.type_ids.filtered(lambda x: x.closed)
             if len(stage_done) == 0:
-                raise Warning(u'Atenção!', u'Configure um estágio para as tarefas concluídas')
+                raise Warning(u'Configure um estágio para as tarefas concluídas')
             stages = sprint.project_id.type_ids.sorted(lambda x: x.sequence)
             points_done = 0
             for task in sprint.task_ids:
@@ -163,17 +163,17 @@ class project_user_stories(models.Model):
 
     name = fields.Char(string='User Story', required=True)
     color = fields.Integer('Color Index')
-    description = fields.Html(string = 'Description')
-    description_short = fields.Text(compute = '_conv_html2text', store=True)
-    actor_ids = fields.Many2many(comodel_name='project.scrum.actors', string = 'Actor')
-    project_id = fields.Many2one(comodel_name = 'project.project', string = 'Project', ondelete='set null',
+    description = fields.Html(string='Description')
+    description_short = fields.Text(compute='_conv_html2text', store=True)
+    actor_ids = fields.Many2many(comodel_name='project.scrum.actors', string='Actor')
+    project_id = fields.Many2one(comodel_name='project.project', string='Project', ondelete='set null',
         select=True, track_visibility='onchange', change_default=True)
-    sprint_ids = fields.Many2many(comodel_name = 'project.scrum.sprint', string = 'Sprint')    
-    task_ids = fields.One2many(comodel_name = 'project.task', inverse_name = 'us_id')
-    task_test_ids = fields.One2many(comodel_name = 'project.scrum.test', inverse_name = 'user_story_id_test')
-    task_count = fields.Integer(compute = '_task_count', store=True)
-    test_ids = fields.One2many(comodel_name = 'project.scrum.test', inverse_name = 'user_story_id_test')
-    test_count = fields.Integer(compute = '_test_count', store=True)
+    sprint_ids = fields.Many2many(comodel_name='project.scrum.sprint', string='Sprint')    
+    task_ids = fields.One2many(comodel_name='project.task', inverse_name='us_id')
+    task_test_ids = fields.One2many(comodel_name='project.scrum.test', inverse_name='user_story_id_test')
+    task_count = fields.Integer(compute='_task_count', store=True)
+    test_ids = fields.One2many(comodel_name='project.scrum.test', inverse_name='user_story_id_test')
+    test_count = fields.Integer(compute='_test_count', store=True)
     sequence = fields.Integer('Sequence')
     total_points = fields.Integer('Points')
     company_id = fields.Many2one(related='project_id.analytic_account_id.company_id')
@@ -183,19 +183,19 @@ class project_user_stories(models.Model):
     def _conv_html2text(self):  # method that return a short text from description of user story
         for d in self: 
             d.description_short = re.sub('<.*>', ' ', d.description or '')
-            if len(d.description_short)>=150:
+            if len(d.description_short) >= 150:
                 d.description_short = d.description_short[:149]
-            #d.description_short = d.description_short[: len(d.description_short or '')-1 if len(d.description_short or '')<=150 else 149]
-            #d.description_short = re.sub('<.*>', ' ', d.description)[:len(d.description) - 1 if len(d.description)>149 then 149]
-            #d.description_short = BeautifulSoup(d.description.replace('*', ' ') or '').get_text()[:49] + '...'
-        #self.description_short = BeautifulSoup(self.description).get_text()
+            # d.description_short = d.description_short[: len(d.description_short or '')-1 if len(d.description_short or '')<=150 else 149]
+            # d.description_short = re.sub('<.*>', ' ', d.description)[:len(d.description) - 1 if len(d.description)>149 then 149]
+            # d.description_short = BeautifulSoup(d.description.replace('*', ' ') or '').get_text()[:49] + '...'
+        # self.description_short = BeautifulSoup(self.description).get_text()
             
     @api.multi
-    def _task_count(self):    # method that calculate how many tasks exist
+    def _task_count(self):  # method that calculate how many tasks exist
         for p in self:
             p.task_count = len(p.task_ids)
             
-    def _test_count(self):    # method that calculate how many test cases exist
+    def _test_count(self):  # method that calculate how many test cases exist
         for p in self:
             p.test_count = len(p.test_ids)
 
@@ -219,7 +219,7 @@ class project_user_stories(models.Model):
     def _read_group_sprint_id(self, present_ids, domain, **kwargs):
         project_id = self._resolve_project_id_from_context()
         sprints = self.env['project.scrum.sprint'].search([('project_id', '=', project_id)], order='sequence').name_get()
-        #sprints.sorted(key=lambda r: r.sequence)
+        # sprints.sorted(key=lambda r: r.sequence)
         return sprints, None
     
     _group_by_full = {
@@ -232,9 +232,9 @@ class project_task(models.Model):
     _order = "sequence"
 
     user_id = fields.Many2one('res.users', 'Assigned to', select=True, track_visibility='onchange', default="")
-    actor_ids = fields.Many2many(comodel_name='project.scrum.actors', string = 'Actor')
-    sprint_id = fields.Many2one(comodel_name = 'project.scrum.sprint', string = 'Sprint')
-    us_id = fields.Many2one(comodel_name = 'project.scrum.us', string = 'User Stories')
+    actor_ids = fields.Many2many(comodel_name='project.scrum.actors', string='Actor')
+    sprint_id = fields.Many2one(comodel_name='project.scrum.sprint', string='Sprint')
+    us_id = fields.Many2one(comodel_name='project.scrum.us', string='User Stories')
     use_scrum = fields.Boolean(related='project_id.use_scrum')
     description = fields.Html('Description')
     points = fields.Integer('Points')
@@ -249,7 +249,7 @@ class project_task(models.Model):
     
     def _update_projected_burndown(self, vals):  
         sprint = "sprint_id" in vals and self.env['project.scrum.sprint'].browse(vals["sprint_id"]) or self.sprint_id 
-        if sprint:
+        if sprint and sprint.date_start and sprint.date_stop:
             bnd = self.env['project.burndown'].search([('sprint_id', '=', sprint.id)])
             for item in bnd:
                 item.unlink()
@@ -282,11 +282,11 @@ class project_task(models.Model):
 
                 today_str = datetime.now().strftime(DEFAULT_SERVER_DATETIME_FORMAT)
                 tasks_today = closed_tasks.filtered(
-                    lambda x: datetime.strptime((x.date_end or today_str), DEFAULT_SERVER_DATETIME_FORMAT) >= single_date+timedelta(hours=-12) and \
-                    datetime.strptime((x.date_end or today_str), DEFAULT_SERVER_DATETIME_FORMAT) <  single_date+timedelta(hours=12))
+                    lambda x: datetime.strptime((x.date_end or today_str), DEFAULT_SERVER_DATETIME_FORMAT) >= single_date + timedelta(hours=-12) and \
+                    datetime.strptime((x.date_end or today_str), DEFAULT_SERVER_DATETIME_FORMAT) < single_date + timedelta(hours=12))
                 points_today = sum(task.points for task in tasks_today)
                 points_real -= points_today
-                burndown = { 'type': 'real', 'day': single_date, 
+                burndown = { 'type': 'real', 'day': single_date,
                             'points': points_real, 'sprint_id': sprint.id }
                 self.env['project.burndown'].create(burndown)
     
@@ -360,10 +360,10 @@ class project_task(models.Model):
         #else:
           #  return [], None"""
 
-    #def _auto_init(self, cr, context=None):
-        #self._group_by_full['sprint_id'] = _read_group_sprint_id
-        #self._group_by_full['us_id'] = _read_group_us_id
-        #super(project_task, self)._auto_init(cr, context)
+    # def _auto_init(self, cr, context=None):
+        # self._group_by_full['sprint_id'] = _read_group_sprint_id
+        # self._group_by_full['us_id'] = _read_group_us_id
+        # super(project_task, self)._auto_init(cr, context)
 
     def _read_group_stage_ids(self, cr, uid, ids, domain, read_group_order=None, access_rights_uid=None, context=None):
         stage_obj = self.pool.get('project.task.type')
@@ -379,7 +379,7 @@ class project_task(models.Model):
         stage_ids = stage_obj._search(cr, uid, search_domain, order=order, access_rights_uid=access_rights_uid, context=context)
         result = stage_obj.name_get(cr, access_rights_uid, stage_ids, context=context)
         # restore order of the search
-        result.sort(lambda x,y: cmp(stage_ids.index(x[0]), stage_ids.index(y[0])))
+        result.sort(lambda x, y: cmp(stage_ids.index(x[0]), stage_ids.index(y[0])))
 
         fold = {}
         for stage in stage_obj.browse(cr, access_rights_uid, stage_ids, context=context):
@@ -397,28 +397,28 @@ class project_task(models.Model):
             if read_group_order == 'user_id desc':
                 order = '%s desc' % order
             # de-duplicate and apply search order
-            ids = res_users._search(cr, uid, [('id','in',ids)], order=order, access_rights_uid=access_rights_uid, context=context)
+            ids = res_users._search(cr, uid, [('id', 'in', ids)], order=order, access_rights_uid=access_rights_uid, context=context)
         result = res_users.name_get(cr, access_rights_uid, ids, context=context)
         # restore order of the search
-        result.sort(lambda x,y: cmp(ids.index(x[0]), ids.index(y[0])))
+        result.sort(lambda x, y: cmp(ids.index(x[0]), ids.index(y[0])))
         return result, {}
     
     try:
-        #group_by_full['sprint_id'] = _read_group_sprint_id
-        #_group_by_full['us_id'] = _read_group_us_id
+        # group_by_full['sprint_id'] = _read_group_sprint_id
+        # _group_by_full['us_id'] = _read_group_us_id
 
         _group_by_full = {
             'sprint_id': _read_group_sprint_id,
             'us_id': _read_group_us_id,
             'stage_id': _read_group_stage_ids,
-            'user_id': _read_group_user_id,            
+            'user_id': _read_group_user_id,
         }
     except:
         _group_by_full = {
             'sprint_id': _read_group_sprint_id,
             'us_id': _read_group_us_id,
             'stage_id': _read_group_stage_ids,
-            'user_id': _read_group_user_id,            
+            'user_id': _read_group_user_id,
         }
 
 class project_actors(models.Model):
@@ -432,16 +432,16 @@ class scrum_meeting(models.Model):
     _description = 'Project Scrum Daily Meetings'
     _inherit = ['mail.thread', 'ir.needaction_mixin']
 
-    project_id = fields.Many2one(comodel_name = 'project.project', string = 'Project', ondelete='set null',
+    project_id = fields.Many2one(comodel_name='project.project', string='Project', ondelete='set null',
         select=True, track_visibility='onchange', change_default=True)
     name = fields.Char(string='Meeting', compute='_compute_meeting_name', size=60)
-    sprint_id = fields.Many2one(comodel_name = 'project.scrum.sprint', string = 'Sprint')
-    date_meeting = fields.Date(string = 'Date', required=True, default=date.today())
-    user_id_meeting = fields.Many2one(comodel_name = 'res.users', string = 'Name', required=True, default=lambda self: self.env.user)
-    question_yesterday = fields.Text(string = 'Description', required=True)
-    question_today = fields.Text(string = 'Description', required=True)
-    question_blocks = fields.Text(string = 'Description', required=False)
-    question_backlog = fields.Selection([('yes','Yes'),('no','No')], string='Backlog Accurate?', required=False, default = 'yes')
+    sprint_id = fields.Many2one(comodel_name='project.scrum.sprint', string='Sprint')
+    date_meeting = fields.Date(string='Date', required=True, default=date.today())
+    user_id_meeting = fields.Many2one(comodel_name='res.users', string='Name', required=True, default=lambda self: self.env.user)
+    question_yesterday = fields.Text(string='Description', required=True)
+    question_today = fields.Text(string='Description', required=True)
+    question_blocks = fields.Text(string='Description', required=False)
+    question_backlog = fields.Selection([('yes', 'Yes'), ('no', 'No')], string='Backlog Accurate?', required=False, default='yes')
     company_id = fields.Many2one(related='project_id.analytic_account_id.company_id')
 
 
@@ -479,32 +479,32 @@ class scrum_meeting(models.Model):
 class project(models.Model):
     _inherit = 'project.project'
 
-    sprint_ids = fields.One2many(comodel_name = "project.scrum.sprint", inverse_name = "project_id", string = "Sprints")
-    user_story_ids = fields.One2many(comodel_name = "project.scrum.us", inverse_name = "project_id", string = "User Stories")
-    meeting_ids = fields.One2many(comodel_name = "project.scrum.meeting", inverse_name = "project_id", string = "Meetings")
-    test_case_ids = fields.One2many(comodel_name = "project.scrum.test", inverse_name = "project_id", string = "Test Cases")  
-    sprint_count = fields.Integer(compute = '_sprint_count', string="Sprints")
-    user_story_count = fields.Integer(compute = '_user_story_count', string="User Stories")
-    meeting_count = fields.Integer(compute = '_meeting_count', string="Meetings")
-    test_case_count = fields.Integer(compute = '_test_case_count', string="Test Cases")
+    sprint_ids = fields.One2many(comodel_name="project.scrum.sprint", inverse_name="project_id", string="Sprints")
+    user_story_ids = fields.One2many(comodel_name="project.scrum.us", inverse_name="project_id", string="User Stories")
+    meeting_ids = fields.One2many(comodel_name="project.scrum.meeting", inverse_name="project_id", string="Meetings")
+    test_case_ids = fields.One2many(comodel_name="project.scrum.test", inverse_name="project_id", string="Test Cases")  
+    sprint_count = fields.Integer(compute='_sprint_count', string="Sprints")
+    user_story_count = fields.Integer(compute='_user_story_count', string="User Stories")
+    meeting_count = fields.Integer(compute='_meeting_count', string="Meetings")
+    test_case_count = fields.Integer(compute='_test_case_count', string="Test Cases")
     use_scrum = fields.Boolean(store=True)
-    default_sprintduration = fields.Integer(string = 'Calendar', required=False, default=14,help="Default Sprint time for this project, in days")
-    manhours = fields.Integer(string = 'Man Hours', required=False,help="How many hours you expect this project needs before it's finished")
+    default_sprintduration = fields.Integer(string='Calendar', required=False, default=14, help="Default Sprint time for this project, in days")
+    manhours = fields.Integer(string='Man Hours', required=False, help="How many hours you expect this project needs before it's finished")
     
 
-    def _sprint_count(self):    # method that calculate how many sprints exist
+    def _sprint_count(self):  # method that calculate how many sprints exist
         for p in self:
             p.sprint_count = len(p.sprint_ids)
 
-    def _user_story_count(self):    # method that calculate how many user stories exist
+    def _user_story_count(self):  # method that calculate how many user stories exist
         for p in self:
             p.user_story_count = len(p.user_story_ids)
 
-    def _meeting_count(self):    # method that calculate how many meetings exist
+    def _meeting_count(self):  # method that calculate how many meetings exist
         for p in self:
             p.meeting_count = len(p.meeting_ids)
             
-    def _test_case_count(self):    # method that calculate how many test cases exist
+    def _test_case_count(self):  # method that calculate how many test cases exist
         for p in self:
             p.test_case_count = len(p.test_case_ids)
 
@@ -514,12 +514,12 @@ class test_case(models.Model):
 
     name = fields.Char(string='Name', required=True)
     color = fields.Integer('Color Index')
-    project_id = fields.Many2one(comodel_name = 'project.project', string = 'Project', ondelete='set null', select=True, track_visibility='onchange', change_default=True)
-    sprint_id = fields.Many2one(comodel_name = 'project.scrum.sprint', string = 'Sprint')
-    user_story_id_test = fields.Many2one(comodel_name = "project.scrum.us", string = "User Story")
-    description_test = fields.Html(string = 'Description')
-    sequence_test = fields.Integer(string = 'Sequence', select=True)
-    stats_test = fields.Selection([('draft','Draft'),('in progress','In Progress'),('cancel','Cancelled')], string='State', required=False)
+    project_id = fields.Many2one(comodel_name='project.project', string='Project', ondelete='set null', select=True, track_visibility='onchange', change_default=True)
+    sprint_id = fields.Many2one(comodel_name='project.scrum.sprint', string='Sprint')
+    user_story_id_test = fields.Many2one(comodel_name="project.scrum.us", string="User Story")
+    description_test = fields.Html(string='Description')
+    sequence_test = fields.Integer(string='Sequence', select=True)
+    stats_test = fields.Selection([('draft', 'Draft'), ('in progress', 'In Progress'), ('cancel', 'Cancelled')], string='State', required=False)
     company_id = fields.Many2one(related='project_id.analytic_account_id.company_id')
 
     def _resolve_project_id_from_context(self, cr, uid, context=None):
@@ -544,8 +544,3 @@ class test_case(models.Model):
         'user_story_id_test': _read_group_us_id,
         }
     name = fields.Char()
-    
-class ProjectTaskType(models.Model):
-    _inherit = 'project.task.type'
-
-    cancelled_state = fields.Boolean(u'Estado Cancelado?')

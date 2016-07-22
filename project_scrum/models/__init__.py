@@ -20,5 +20,7 @@
 ###############################################################################
 
 
+from . import project_project
 from . import burndown
 from . import project_config
+from . import project_scrum
