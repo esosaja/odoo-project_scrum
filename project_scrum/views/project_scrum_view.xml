@@ -254,13 +254,14 @@
                     <templates>
                     <t t-name="kanban-box">        
 	                	<div t-attf-class="oe_kanban_color_#{kanban_getcolor(record.color.raw_value)} oe_kanban_card oe_kanban_global_click">
-                            <div class="oe_dropdown_toggle oe_dropdown_kanban" groups="base.group_user">
-                                More <i class="fa fa-caret-down"></i>
-                                <ul class="oe_dropdown_menu">
-                                    <li>
-                                    	<li><a type="edit">Edit...</a></li>
-                                    	<li><a type="delete">Delete</a></li>
-                                    </li>
+                            <div class="o_dropdown_kanban dropdown" groups="base.group_user">
+                                <a class="dropdown-toggle btn" data-toggle="dropdown" href="#">
+                                    <span class="fa fa-bars fa-lg"/>
+                                </a>
+                                <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                                    <t t-if="widget.editable"><li><a type="edit">Edit</a></li></t>
+                                    <t t-if="widget.deletable"><li><a type="delete">Delete</a></li></t>
+                                    <li><ul class="oe_kanban_colorpicker" data-field="color"/></li>
                                 </ul>
                             </div>
                             <div class="oe_kanban_content">
@@ -440,15 +441,16 @@
                     <templates>
                         <t t-name="kanban-box">
 	                        <div t-attf-class="oe_kanban_color_#{kanban_getcolor(record.color.raw_value)} oe_kanban_card oe_kanban_global_click">
-	                            <div class="oe_dropdown_toggle oe_dropdown_kanban" groups="base.group_user">
-	                                More <i class="fa fa-caret-down"></i>
-	                                <ul class="oe_dropdown_menu">
-	                                    <li>
-	                                    	<li><a type="edit">Edit...</a></li>
-	                                    	<li><a type="delete">Delete</a></li>
-	                                    </li>
+	                            <div class="o_dropdown_kanban dropdown" groups="base.group_user">
+	                                <a class="dropdown-toggle btn" data-toggle="dropdown" href="#">
+	                                    <span class="fa fa-bars fa-lg"/>
+	                                </a>
+	                                <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+	                                    <t t-if="widget.editable"><li><a type="edit">Edit</a></li></t>
+	                                    <t t-if="widget.deletable"><li><a type="delete">Delete</a></li></t>
+	                                    <li><ul class="oe_kanban_colorpicker" data-field="color"/></li>
 	                                </ul>
-	                            </div>
+                            	</div>
 	                            <div class="oe_kanban_content">
 	                                <div><b><field name="name"/></b></div>
 	                                <p><field name="stats_test"/></p>
