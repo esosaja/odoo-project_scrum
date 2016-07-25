@@ -86,6 +86,7 @@
                     <field name="project_id"/>  <!--name of project-->
 <!--
                     <field name="scrum_master_id"/>
+                    <field name="scrum_team_id" />
                     <field name="product_owner_id" invisible="1"/>
 -->
                     <field name="date_start"/>
@@ -739,6 +740,56 @@
             <field name="search_view_id" ref="view_ps_tc_search"/>
             <field name="help">The test case.</field>
         </record>    
+       
+        <record id="scrum_team_view" model="ir.ui.view">
+            <field name="name">project.scrum.team.form</field>
+            <field name="model">project.scrum.team</field>
+            <field name="arch" type="xml">
+                <form string="Create Team">
+                    <group>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                        <group></group>
+                    </group>
+                    <group>
+                        <field name="member_ids" widget="many2many"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="scrum_team" model="ir.actions.act_window">
+            <field name="name">Scrum Team</field>
+            <field name="res_model">project.scrum.team</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="action_current_sprint" model="ir.actions.server">
+            <field name="sequence" eval="5"/>
+            <field name="state">code</field>
+            <field name="type">ir.actions.server</field>
+            <field name="model_id" ref="model_project_task"/>
+            <field name="code">action = pool.get('project.task').filter_current_sprint(cr, uid, None, context)</field>
+            <field name="condition">True</field>
+            <field name="name">Sprint Atual</field>
+        </record>
+
+<!--menu for accessing current sprint-->
+        <menuitem
+            action="action_current_sprint"
+            id="menu_open_project_attachment_view"
+            sequence="15"
+            parent="menu_scrum_in_config">
+        </menuitem>
+
+<!-- menu item for accessing scrum team -->
+        <menuitem
+            action="scrum_team"
+            id="scrum_team_menu"
+            sequence="24"
+            parent="menu_scrum_in_config">
+        </menuitem>
         
 <!--menu for accessing to userstories-->
         <menuitem

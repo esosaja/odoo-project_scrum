@@ -2,7 +2,7 @@
 # © 2016 Danimar Ribeiro, Trustcode
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
-from openerp import api, fields, models
+from openerp import api, fields, models, _
 
 
 class ProjectTaskType(models.Model):
@@ -150,3 +150,42 @@ class ProjectTask(models.Model):
         'us_id': _read_group_us_id,
         'stage_id': _read_group_stage_ids,
     }
+   
+    def filter_current_sprint(self, cr, uid, ids, context=None):
+        user_object = self.pool.get('res.users')
+        sprint = self.pool.get('project.scrum.sprint')
+        user = user_object.browse(cr, uid, uid, context=context)
+        view_type = 'kanban,form,tree'
+        team_id = user.scrum_team_id.id
+        sprint_ids = sprint.search(cr, uid,
+                                   [('state', '=', 'open'),
+                                    ('scrum_team_id', '=', team_id)],
+                                   context=context)
+        if sprint_ids:
+            cr.execute('select distinct project_id from project_task\
+                       where sprint_id = %s' % sprint_ids[0])
+            project_ids = cr.fetchall()
+            context = {'search_default_project_id': project_ids}
+            value = {
+                'domain': [('state_sprint', '=', 'open')],
+                'context': context,
+                'name': _('Current Sprint'),
+                'view_type': 'form',
+                'view_mode': view_type,
+                'res_model': 'project.task',
+                'view_id': False,
+                'type': 'ir.actions.act_window',
+            }
+        else:
+            value = {
+                'domain': [('id', '=', 0)],
+                'name': _('Current Sprint'),
+                'view_type': 'form',
+                'view_mode': view_type,
+                'res_model': 'project.task',
+                'view_id': False,
+                'type': 'ir.actions.act_window',
+                'help': 'No sprint running.',
+            }
+        return value
+

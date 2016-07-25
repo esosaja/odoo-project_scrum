@@ -74,6 +74,8 @@ class scrum_sprint(models.Model):
         change_default=True, required=True, help="If you have [?] in the project name, it means there are no analytic account linked to this project.")
     product_owner_id = fields.Many2one(comodel_name='res.users', string='Product Owner', required=False, help="The person who is responsible for the product")
     scrum_master_id = fields.Many2one(comodel_name='res.users', string='Scrum Master', required=False, help="The person who is maintains the processes for the product")
+    scrum_team_id = fields.Many2one(comodel_name="project.scrum.team",
+                                    string="Team")
     us_ids = fields.Many2many(comodel_name='project.scrum.us', string='User Stories')
     task_ids = fields.One2many(comodel_name='project.task', inverse_name='sprint_id')
     total_points = fields.Integer('Planned Points', compute='_points_count')
@@ -352,3 +354,19 @@ class test_case(models.Model):
         'user_story_id_test': _read_group_us_id,
         }
     name = fields.Char()
+
+
+class ProjectScrumTeam(models.Model):
+    _name = "project.scrum.team"
+
+    name = fields.Char(string='Name', max_length=20, required=True)
+    member_ids = fields.One2many(string="Members",
+                                 comodel_name="res.users",
+                                 inverse_name="scrum_team_id")
+
+
+class ResUsers(models.Model):
+    _inherit = "res.users"
+
+    scrum_team_id = fields.Many2one(string="Scrum Team",
+                                    comodel_name="res.users")
