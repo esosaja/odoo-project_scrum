@@ -3,7 +3,7 @@
     <data>
         <menuitem id="menu_scrum_in_config"
             name="Scrum"
-            parent="base.menu_definitions" sequence="3"/>
+            parent="base.menu_main_pm" sequence="3"/>
 
 
 <!--task search-->
@@ -26,7 +26,7 @@
                 </filter>
             </field>
         </record>
-        
+
         <record id="view_trust_project_task_type_form" model="ir.ui.view">
 			<field name="name">trust_project_task_type.task_lock_draft</field>
 			<field name="model">project.task.type</field>
@@ -44,7 +44,7 @@
 			<field name="inherit_id" ref="project.view_task_kanban" />
 			<field name="arch" type="xml">
 				<field name="categ_ids" position="after">
-					<field name="points" />					
+					<field name="points" />
 				</field>
 				<xpath expr="//div[@class='oe_kanban_footer_left']"
 					position='after'>
@@ -57,7 +57,7 @@
 				</xpath>
 			</field>
 		</record>
-        
+
  <!--access to task kanban view from sprint-->
         <record id="action_ps_sprint_backlog" model="ir.actions.act_window">
             <field name="name">Sprint Backlog</field>
@@ -71,7 +71,7 @@
                 'active_test': False,
             }</field>
             <field name="search_view_id" ref="view_ps_task_search"/>
-        </record> 
+        </record>
 
  <!--access to tesk tree view for test case from sprint-->
         <record id="action_ps_tc" model="ir.actions.act_window">
@@ -86,8 +86,8 @@
                 'active_test': False,
             }</field>
             <field name="search_view_id" ref="view_ps_task_search"/>
-        </record> 
-        
+        </record>
+
 <!--Scrum Sprint-->
         <!--sprint tree view-->
         <record id="view_ps_sprint_tree" model="ir.ui.view">
@@ -104,18 +104,18 @@
                     <field name="product_owner_id" invisible="1"/>
 -->
                     <field name="date_start"/>
-                    <field name="date_stop"/><!--time to stop-->   
+                    <field name="date_stop"/><!--time to stop-->
 
                     <field name="planned_hours" widget="float_time"/>
-                    <field name="effective_hours" widget="float_time"/> 
+                    <field name="effective_hours" widget="float_time"/>
 
-                    <field name="progress" widget="progressbar"/>   
+                    <field name="progress" widget="progressbar"/>
                     <field name="date_duration"/>   <!--duration time = stop time - start time-->
                     <field name="state"/>
                 </tree>
             </field>
         </record>
-        
+
         <!--sprint form view-->
         <record id="view_ps_sprint_form" model="ir.ui.view">
             <field name="name">project.scrum.sprint.form</field>
@@ -125,10 +125,10 @@
                 <form string="Scrum Sprint">
                     <!--Header States-->
                     <header>
-                    	<button name="start_sprint" type="object" string="Iniciar Sprint" 
+                    	<button name="start_sprint" type="object" string="Iniciar Sprint"
                     		class="oe_highlight" states="draft"/>
-                    	<button name="finish_sprint" type="object" string="Finalizar Sprint" 
-                    		class="oe_highlight" states="open" 
+                    	<button name="finish_sprint" type="object" string="Finalizar Sprint"
+                    		class="oe_highlight" states="open"
                     		confirm="Deseja finalizar o sprint? Esta ação não pode ser desfeita" />
                         <field name="state" string="State" widget="statusbar" clickable="true"/>
                     </header>
@@ -136,36 +136,37 @@
                     <h1>
                         <field name="name" placeholder="Sprint..." class="oe_inline"/>
                     </h1>
-                    <button  class="oe_inline oe_stat_button" type="action" icon="fa-tasks" 
+                    <button  class="oe_inline oe_stat_button" type="action" icon="fa-tasks"
                     name="%(action_ps_sprint_backlog)d" string="Backlog" context="{'default_project_id': project_id}">
 <!--
                         <field name="task_count" widget="statinfo" string="Tasks"/>
 -->
                     </button>
-                    <button  class="oe_inline oe_stat_button" type="action" icon="fa-tasks" 
+                    <button  class="oe_inline oe_stat_button" type="action" icon="fa-tasks"
                     name="%(action_ps_tc)d" string="[TC] Tasks" context="{'default_project_id': project_id}">
 <!--
                         <field name="task_test_count" widget="statinfo" string="Test Tasks"/>
 -->
                     </button>
-                    <button  class="oe_inline oe_stat_button" type="action" icon="fa-line-chart" 
-                    name="%(action_project_scrum_burndown_graph)d" string="Burndown" 
+                    <button  class="oe_inline oe_stat_button" type="action" icon="fa-line-chart"
+                    name="%(action_project_scrum_burndown_graph)d" string="Burndown"
                     context="{'search_default_sprint_id': id}">
                     </button>
                     <group colspan="4" col="4">
                         <field name="project_id"/>  <!--on_change="onchange_project_id(project_id)"  -->
                         <field name="progress" widget="progressbar"/>
                     </group>
-                    <group colspan="4" col="6">                    	  
+                    <group colspan="4" col="6">
                     	<field name="planned_hours" widget="float_time"/>
                         <field name="effective_hours" widget="float_time"/>
                         <field name="date_duration"/>
-                        
+
                         <field name="date_start"/>
                         <field name="date_stop"/>
                         <field name="total_points" />
                         <field name="points_done" />
-                    </group> 
+                        <field name="sprint_team" />
+                    </group>
                     <notebook colspan="5">
                     	<page string="Tasks">
                     		<group col="1">
@@ -198,24 +199,24 @@
                                     <field name="sprint_ids"/>
                                     <field name="project_id"/>
                                 </tree>
-                            </field> 
+                            </field>
                         </page>
                         <page string="Review">
                             <!--page for review-->
                             <group col="1">
                                 <field name="review"/>
-                            </group>                            
+                            </group>
                         </page>
                         <page string="Retrospective">
                             <!--page for retropective-->
                             <field name="retrospective"/>
-                        </page> 
-                    </notebook> 
+                        </page>
+                    </notebook>
                     </sheet>
                 </form>
             </field>
         </record>
-        
+
         <!--sprint calendar view-->
         <record id="view_ps_sprint_calendar" model="ir.ui.view">
             <field name="name">project.scrum.sprint.calendar</field>
@@ -330,7 +331,7 @@
                         <page string="Tasks">
                             <field name="task_ids" string="Task" context="{
                                         'default_project_id': project_id,
-                                        
+
                                         'default_us_id': id,
                                         }">
                                         <!--'default_sprint_id': sprint_id,-->
@@ -361,7 +362,7 @@
                 </form>
             </field>
         </record>
-        
+
         <!--user stories tree view-->
         <record id="view_ps_us_tree" model="ir.ui.view">
             <field name="name">project.scrum.us.tree</field>
@@ -387,11 +388,11 @@
                 <tree string="Scrum Meeting">
                     <field name="date_meeting"/>
                     <field name="user_id_meeting"/>
-                    <field name="sprint_id"/> 
+                    <field name="sprint_id"/>
                 </tree>
             </field>
         </record>
-        
+
         <!--daily meeting form view-->
         <record id="view_ps_meeting_form" model="ir.ui.view">
             <field name="name">project.scrum.meeting.form</field>
@@ -405,8 +406,8 @@
                         <field name="date_meeting"/>
                         <field name="user_id_meeting"/>
                         <field name="project_id"/>
-                        <field name="sprint_id" domain="[('project_id', '=', project_id)]" context="{'default_project_id': project_id}"/> 
-                        <button name="send_email" string="Send Email" type="object" 
+                        <field name="sprint_id" domain="[('project_id', '=', project_id)]" context="{'default_project_id': project_id}"/>
+                        <button name="send_email" string="Send Email" type="object"
                         icon="terp-mail-message-new" />
                     </group>
                     <group>
@@ -417,14 +418,14 @@
                         <separator colspan="4" string="Are there anything blocking you?"/>
                         <field colspan="4" name="question_blocks" nolabel="1"/>
                         <separator colspan="4" string="Are your Sprint Backlog estimate accurate ?"/>
-                        <field colspan="4" name="question_backlog" nolabel="1"/> 
+                        <field colspan="4" name="question_backlog" nolabel="1"/>
                         <separator colspan="4" string=""/>
                     </group>
                     </sheet>
                 </form>
             </field>
         </record>
-      
+
         <!--daily meeting calendar view-->
         <record id="view_ps_meeting_calendar" model="ir.ui.view">
             <field name="name">project.scrum.meeting.calendar</field>
@@ -435,8 +436,8 @@
                     <field name="user_id_meeting"/>
                 </calendar>
             </field>
-        </record> 
-        
+        </record>
+
 <!--Scrum test case-->
         <!--test case kanban view-->
         <record id="view_ps_tc_kanban" model="ir.ui.view">
@@ -483,7 +484,7 @@
             <field name="inherit_id" ref="project.view_project"/>
             <field name="arch" type="xml">
                 <field name="name" position="after">
-                    <field name="use_scrum" string="Using Scrum"/>                    
+                    <field name="use_scrum" string="Using Scrum"/>
                 </field>
                 <field name="user_id" position="attributes">
                     <attribute name="string">Scrum Master/Project Manager</attribute>
@@ -508,7 +509,7 @@
                 </tree>
             </field>
         </record>
-        
+
 <!--test case form view-->
         <record id="view_ps_tc_form" model="ir.ui.view">
             <field name="name">project.scrum.test.form</field>
@@ -527,7 +528,7 @@
                         <field name="user_story_id_test" domain="[('project_id', '=', project_id)]" context="{'default_project_id': project_id}"/>
                     </group>
                     <notebook>
-                        <page string="Description">   
+                        <page string="Description">
                             <field name="description_test"/>
                         </page>
                     </notebook>
@@ -535,7 +536,7 @@
                 </form>
             </field>
         </record>
-             
+
 <!--sprint search bar-->
         <record id="view_ps_sprint_search" model="ir.ui.view">
             <field name="name">project.scrum.sprint.search</field>
@@ -576,7 +577,7 @@
                         <filter string="Month" domain="[]" context="{'group_by':'date_start'}" help="Sprint Month"/>
                     </group>
                 </search>
-            </field> 
+            </field>
         </record>
 
 <!--daily meeting search bar-->
@@ -600,7 +601,7 @@
                         <filter string="Name" domain="[]" context="{'group_by':'user_id_meeting'}"/>
                     </group>
                 </search>
-            </field> 
+            </field>
         </record>
 
 <!--user stories search bar-->
@@ -621,9 +622,9 @@
                         <filter string="Project" name="group_by_project" domain="[]" coantext="{'group_by':'project_id'}"/>
                     </group>
                 </search>
-            </field> 
+            </field>
         </record>
-        
+
 <!--test cases search bar-->
         <record id="view_ps_tc_search" model="ir.ui.view">
             <field name="name">project.scrum.test.search</field>
@@ -650,7 +651,7 @@
                         <filter string="User Story" name="group_by_us_test" context="{'group_by':'user_story_id_test'}"/>
                     </group>
                 </search>
-            </field> 
+            </field>
         </record>
 
         <!-- filter by using scrum -->
@@ -660,8 +661,8 @@
             <field name="inherit_id" ref="project.view_project_project_filter"/>
             <field name="arch" type="xml">
                 <filter name="Template" position="after">
-                    <filter string="Using Scrum" name="use_scrum" domain="[('use_scrum','=',True)]"/>   
-                </filter>             
+                    <filter string="Using Scrum" name="use_scrum" domain="[('use_scrum','=',True)]"/>
+                </filter>
             </field>
         </record>
 
@@ -674,11 +675,11 @@
             <field name="view_id" ref="view_ps_sprint_tree"/>
             <field name="context">{"search_default_current": 1}</field>
             <field name="search_view_id" ref="view_ps_sprint_search"/>
-            <field name="help">The scrum agile methodology is used in software development projects. In this methodology, 
-            a sprint is a short period of time (e.g. one month) during which the team implements a list of product backlogs. 
+            <field name="help">The scrum agile methodology is used in software development projects. In this methodology,
+            a sprint is a short period of time (e.g. one month) during which the team implements a list of product backlogs.
             The sprint review is organized when the team presents its work to the customer and product owner.</field>
         </record>
-        
+
 <!--access to current sprint tree view-->
         <record id="action_ps_sprint_current" model="ir.actions.act_window">
             <field name="name">Sprints</field>
@@ -692,8 +693,8 @@
                 'active_test': False,
             }</field>
             <field name="search_view_id" ref="view_ps_sprint_search"/>
-            <field name="help">The scrum agile methodology is used in software development projects. In this methodology, 
-            a sprint is a short period of time (e.g. one month) during which the team implements a list of product backlogs. 
+            <field name="help">The scrum agile methodology is used in software development projects. In this methodology,
+            a sprint is a short period of time (e.g. one month) during which the team implements a list of product backlogs.
             The sprint review is organized when the team presents its work to the customer and product owner.</field>
         </record>
 
@@ -736,7 +737,7 @@
             <field name="search_view_id" ref="view_ps_us_search"/>
             <field name="help">The user stories of scrum.</field>
         </record>
-        
+
 <!--access to current user stories tree view-->
         <record id="action_ps_us_current" model="ir.actions.act_window">
             <field name="name">User Stories</field>
@@ -754,7 +755,7 @@
             <field name="help">The user stories of scrum.</field>
         </record>
 
-<!--access to test case kanban view-->        
+<!--access to test case kanban view-->
         <record id="action_ps_tc_all" model="ir.actions.act_window">
             <field name="name">Test Case</field>
             <field name="res_model">project.scrum.test</field>
@@ -764,7 +765,7 @@
             <field name="context">{"search_default_current": 1}</field>
             <field name="search_view_id" ref="view_ps_tc_search"/>
             <field name="help">The test case.</field>
-        </record>    
+        </record>
 
 <!--access to current test case kanban view-->
         <record id="action_ps_tc_current" model="ir.actions.act_window">
@@ -780,7 +781,7 @@
             }</field>
             <field name="search_view_id" ref="view_ps_tc_search"/>
             <field name="help">The test case.</field>
-        </record>    
+        </record>
 
 <!--Add buttons on project form view that can connect to user stories and sprints-->
         <record id="edit_ps_project" model="ir.ui.view">
@@ -863,23 +864,73 @@
                 </field>
             </field>
         </record>
-        
+
+        <record id="scrum_team_view" model="ir.ui.view">
+            <field name="name">project.scrum.team.form</field>
+            <field name="model">project.scrum.team</field>
+            <field name="arch" type="xml">
+                <form string="Criar Equipe">
+                    <group>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                        <group></group>
+                    </group>
+                    <group>
+                        <field name="members" widget="many2many"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="scrum_team" model="ir.actions.act_window">
+            <field name="name">Equipe Scrum</field>
+            <field name="res_model">project.scrum.team</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="action_current_sprint" model="ir.actions.server">
+            <field name="sequence" eval="5"/>
+            <field name="state">code</field>
+            <field name="type">ir.actions.server</field>
+            <field name="model_id" ref="model_project_task"/>
+            <field name="code">action = pool.get('project.task').open_project(cr, uid, None, context)</field>
+            <field name="condition">True</field>
+            <field name="name">Sprint Atual</field>
+        </record>
+
+<!--menu for accessing current sprint-->
+        <menuitem
+            action="action_current_sprint"
+            id="menu_open_project_attachment_view"
+            sequence="15"
+            parent="menu_scrum_in_config">
+        </menuitem>
+
+<!-- menu item for accessing scrum team -->
+        <menuitem
+            action="scrum_team"
+            id="scrum_team_menu"
+            sequence="24"
+            parent="menu_scrum_in_config">
+        </menuitem>
+
 <!--menu for accessing to userstories-->
         <menuitem
             sequence="20"
             action="action_ps_us_all" id="menu_action_ps_us_all" parent="menu_scrum_in_config"/>
-            
+
 <!--menu for accessing to sprint-->
         <menuitem
-            sequence="21"
+            sequence="16"
             action="action_ps_sprint_all" id="menu_action_ps_sprint_all" parent="menu_scrum_in_config"/>
 
 <!--menu for accessing to meeting-->
         <menuitem
             sequence="22"
             action="action_ps_meeting_all" id="menu_action_ps_meeting_all" parent="menu_scrum_in_config"/>
-            
-<!-- menu for accessing to test case-->            
+
+<!-- menu for accessing to test case-->
         <menuitem
             sequence="23"
             action="action_ps_tc_all" id="menu_action_ps_tc_all" parent="menu_scrum_in_config"/>
@@ -953,7 +1004,7 @@
                 </div>
                 ]]>
             </field>
-        </record> 
+        </record>
 
     </data>
 </openerp>
