@@ -308,7 +308,7 @@ class project_task(models.Model):
             cr.execute('select distinct project_id from project_task\
                        where sprint_id = %s' % sprint_ids[0])
             project_ids = cr.fetchall()
-            context = {'search_default_project_id': project_ids}
+            context = {'default_project_id': [x[0] for x in project_ids]}
             value = {
                 'domain': [('state_sprint', '=', 'open')],
                 'context': context,
@@ -414,7 +414,10 @@ class project_task(models.Model):
             order = '%s desc' % order
         search_domain = []
         project_id = self._resolve_project_id_from_context(cr, uid, context=context)
-        if project_id:
+        if not project_id:
+            proj_ids = context.get('default_project_id', [])
+            search_domain += ['|', ('project_ids', 'in', proj_ids)]
+        else:
             search_domain += ['|', ('project_ids', '=', project_id)]
         search_domain += [('id', 'in', ids)]
         stage_ids = stage_obj._search(cr, uid, search_domain, order=order, access_rights_uid=access_rights_uid, context=context)
@@ -586,13 +589,14 @@ class test_case(models.Model):
         }
     name = fields.Char()
 
+
 class ProjectTaskType(models.Model):
     _inherit = 'project.task.type'
 
     cancelled_state = fields.Boolean(u'Estado Cancelado?')
 
 
-class project_scrum_team(models.Model):
+class ProjectScrumTeam(models.Model):
     _name = "project.scrum.team"
 
     name = fields.Char(string='Time', max_length=20, required=True)
@@ -601,7 +605,7 @@ class project_scrum_team(models.Model):
                               inverse_name="scrum_team_id")
 
 
-class res_users(models.Model):
+class ResUsers(models.Model):
     _inherit = "res.users"
 
     scrum_team_id = fields.Many2one(string="Times de Scrum",
